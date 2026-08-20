@@ -3,7 +3,12 @@ using ProcessMiner.Core.DataGeneration;
 using ProcessMiner.Core.Data;
 using ProcessMiner.Core.Models;
 using ProcessMiner.Core.Export;
+using ProcessMiner.Core.Benchmarking;
 using System.Diagnostics;
+
+/*
+
+COMENTED OUT FOR TESTING PURPOSES OF BENCHMARKING SERVICE
 
 Console.WriteLine("Starting Process Miner Engine\n");
 
@@ -71,3 +76,16 @@ Console.WriteLine(dot);
 sw.Stop();
 
 Console.WriteLine("\n\nExecution time: {0} ms", sw.ElapsedMilliseconds);
+
+*/
+/*
+
+Commented out for testing purposes of BenchmarkService because the analisys have already been done and the results are in the BenchmarkingResults.txt file
+
+// Benchmarking the parsing methods and the entire pipeline 5 times to get an average execution time
+for (int i = 0; i < 5; i++)
+{
+    var benchmarkService = new BenchmarkService();
+    benchmarkService.RunBenchmark();
+}
+*/

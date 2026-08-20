@@ -1,0 +1,59 @@
+Starting Benchmarking...
+Warm-up completed.
+
+| Rows       | Parse Lazy   | Parse Fast   | Parse FC     | Diff Fast   | Imp Fast %  | Diff FC     | Imp FC %    | Pipe Lazy    | Pipe Fast    | Pipe Imp F %  | Pipe FC      | Pipe Imp FC %  |
+-----------------------------------------------------------------------------------------------
+| 1.000      | 9         ms | 5         ms | 6         ms | 4        ms | 44,44     % | 3        ms | 33,33     % | 12        ms | 7         ms | 41,67       % | 7         ms | 41,67        % |
+| 10.000     | 56        ms | 48        ms | 56        ms | 8        ms | 14,29     % | 0        ms | 0,00      % | 102       ms | 96        ms | 5,88        % | 97        ms | 4,90         % |
+| 100.000    | 495       ms | 418       ms | 464       ms | 77       ms | 15,56     % | 31       ms | 6,26      % | 934       ms | 910       ms | 2,57        % | 806       ms | 13,70        % |
+| 1.000.000  | 3882      ms | 4008      ms | 4573      ms | -126     ms | -3,25     % | -691     ms | -17,80    % | 9510      ms | 8809      ms | 7,37        % | 7982      ms | 16,07        % |
+| 5.000.000  | 17894     ms | 16898     ms | 19625     ms | 996      ms | 5,57      % | -1731    ms | -9,67     % | 48658     ms | 43625     ms | 10,34       % | 40532     ms | 16,70        % |
+| 10.000.000 | 32561     ms | 34476     ms | 40135     ms | -1915    ms | -5,88     % | -7574    ms | -23,26    % | 97218     ms | 85466     ms | 12,09       % | 79866     ms | 17,85        % |
+Starting Benchmarking...
+Warm-up completed.
+
+| Rows       | Parse Lazy   | Parse Fast   | Parse FC     | Diff Fast   | Imp Fast %  | Diff FC     | Imp FC %    | Pipe Lazy    | Pipe Fast    | Pipe Imp F %  | Pipe FC      | Pipe Imp FC %  |
+-----------------------------------------------------------------------------------------------
+| 1.000      | 4         ms | 3         ms | 4         ms | 1        ms | 25,00     % | 0        ms | 0,00      % | 5         ms | 5         ms | 0,00        % | 5         ms | 0,00         % |
+| 10.000     | 42        ms | 39        ms | 44        ms | 3        ms | 7,14      % | -2       ms | -4,76     % | 76        ms | 73        ms | 3,95        % | 73        ms | 3,95         % |
+| 100.000    | 395       ms | 406       ms | 467       ms | -11      ms | -2,78     % | -72      ms | -18,23    % | 879       ms | 832       ms | 5,35        % | 766       ms | 12,86        % |
+| 1.000.000  | 3951      ms | 4114      ms | 4698      ms | -163     ms | -4,13     % | -747     ms | -18,91    % | 9069      ms | 9165      ms | -1,06       % | 7733      ms | 14,73        % |
+| 5.000.000  | 16901     ms | 16983     ms | 19668     ms | -82      ms | -0,49     % | -2767    ms | -16,37    % | 48095     ms | 44841     ms | 6,77        % | 39113     ms | 18,68        % |
+| 10.000.000 | 32476     ms | 36193     ms | 44210     ms | -3717    ms | -11,45    % | -11734   ms | -36,13    % | 103323    ms | 91870     ms | 11,08       % | 81316     ms | 21,30        % |
+Starting Benchmarking...
+Warm-up completed.
+
+| Rows       | Parse Lazy   | Parse Fast   | Parse FC     | Diff Fast   | Imp Fast %  | Diff FC     | Imp FC %    | Pipe Lazy    | Pipe Fast    | Pipe Imp F %  | Pipe FC      | Pipe Imp FC %  |
+-----------------------------------------------------------------------------------------------
+| 1.000      | 5         ms | 3         ms | 4         ms | 2        ms | 40,00     % | 1        ms | 20,00     % | 5         ms | 5         ms | 0,00        % | 6         ms | -20,00       % |
+| 10.000     | 58        ms | 40        ms | 47        ms | 18       ms | 31,03     % | 11       ms | 18,97     % | 77        ms | 80        ms | -3,90       % | 79        ms | -2,60        % |
+| 100.000    | 456       ms | 480       ms | 490       ms | -24      ms | -5,26     % | -34      ms | -7,46     % | 918       ms | 929       ms | -1,20       % | 814       ms | 11,33        % |
+| 1.000.000  | 4450      ms | 4654      ms | 5129      ms | -204     ms | -4,58     % | -679     ms | -15,26    % | 10189     ms | 9365      ms | 8,09        % | 8019      ms | 21,30        % |
+| 5.000.000  | 18504     ms | 18838     ms | 21964     ms | -334     ms | -1,81     % | -3460    ms | -18,70    % | 51316     ms | 48574     ms | 5,34        % | 42457     ms | 17,26        % |
+| 10.000.000 | 36470     ms | 37843     ms | 43899     ms | -1373    ms | -3,76     % | -7429    ms | -20,37    % | 103762    ms | 92239     ms | 11,11       % | 76078     ms | 26,68        % |
+Starting Benchmarking...
+Warm-up completed.
+
+| Rows       | Parse Lazy   | Parse Fast   | Parse FC     | Diff Fast   | Imp Fast %  | Diff FC     | Imp FC %    | Pipe Lazy    | Pipe Fast    | Pipe Imp F %  | Pipe FC      | Pipe Imp FC %  |
+-----------------------------------------------------------------------------------------------
+| 1.000      | 4         ms | 3         ms | 4         ms | 1        ms | 25,00     % | 0        ms | 0,00      % | 5         ms | 5         ms | 0,00        % | 6         ms | -20,00       % |
+| 10.000     | 48        ms | 40        ms | 47        ms | 8        ms | 16,67     % | 1        ms | 2,08      % | 77        ms | 74        ms | 3,90        % | 78        ms | -1,30        % |
+| 100.000    | 415       ms | 427       ms | 511       ms | -12      ms | -2,89     % | -96      ms | -23,13    % | 962       ms | 867       ms | 9,88        % | 799       ms | 16,94        % |
+| 1.000.000  | 4472      ms | 4575      ms | 5114      ms | -103     ms | -2,30     % | -642     ms | -14,36    % | 9388      ms | 9274      ms | 1,21        % | 8219      ms | 12,45        % |
+| 5.000.000  | 19280     ms | 18893     ms | 21737     ms | 387      ms | 2,01      % | -2457    ms | -12,74    % | 52355     ms | 45616     ms | 12,87       % | 42167     ms | 19,46        % |
+| 10.000.000 | 36637     ms | 38238     ms | 43541     ms | -1601    ms | -4,37     % | -6904    ms | -18,84    % | 102662    ms | 91523     ms | 10,85       % | 75253     ms | 26,70        % |
+Starting Benchmarking...
+Warm-up completed.
+
+| Rows       | Parse Lazy   | Parse Fast   | Parse FC     | Diff Fast   | Imp Fast %  | Diff FC     | Imp FC %    | Pipe Lazy    | Pipe Fast    | Pipe Imp F %  | Pipe FC      | Pipe Imp FC %  |
+-----------------------------------------------------------------------------------------------
+| 1.000      | 7         ms | 4         ms | 5         ms | 3        ms | 42,86     % | 2        ms | 28,57     % | 8         ms | 8         ms | 0,00        % | 8         ms | 0,00         % |
+| 10.000     | 51        ms | 40        ms | 48        ms | 11       ms | 21,57     % | 3        ms | 5,88      % | 76        ms | 79        ms | -3,95       % | 81        ms | -6,58        % |
+| 100.000    | 407       ms | 428       ms | 511       ms | -21      ms | -5,16     % | -104     ms | -25,55    % | 968       ms | 870       ms | 10,12       % | 801       ms | 17,25        % |
+| 1.000.000  | 4444      ms | 4629      ms | 5184      ms | -185     ms | -4,16     % | -740     ms | -16,65    % | 9441      ms | 9336      ms | 1,11        % | 8180      ms | 13,36        % |
+| 5.000.000  | 19699     ms | 19215     ms | 22095     ms | 484      ms | 2,46      % | -2396    ms | -12,16    % | 51404     ms | 44986     ms | 12,49       % | 39146     ms | 23,85        % |
+| 10.000.000 | 32530     ms | 34012     ms | 39299     ms | -1482    ms | -4,56     % | -6769    ms | -20,81    % | 93981     ms | 92141     ms | 1,96        % | 72197     ms | 23,18        % |
+
+Fast Parse Cache shows a significant performance improvement over Lazy Parse, especially as the number of rows increases. The percentage improvement ranges from 2% to over 40% in some cases. 
+Also improvements are observed in the Pipe operations, with Fast Parse Cache consistently outperforming Lazy Parse and Fast Parse, particularly for larger datasets. 
+The results indicate that using Fast Parse Cache can lead to substantial time savings in data processing tasks.

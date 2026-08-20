@@ -8,17 +8,16 @@ namespace ProcessMiner.Core.DataGeneration
 {
     public class DataGen
     {
-        public void GenerateStressTestCSV(string outputPath)
+        public void GenerateStressTestCSV(string outputPath,int n)
         {
-            Console.WriteLine("Generating stress test dataset...");
             using var writer = new StreamWriter(outputPath);
             writer.WriteLine("Case_ID,Timestamp,Activity,Resource,Cost");
 
             var startTime = new DateTime(2026, 1, 1);
             var rand = new Random();
 
-            // 200,000 test cases, each with a sequence of events
-            for (int i = 1; i <= 200000; i++)
+            // n test cases, each with a sequence of events
+            for (int i = 1; i <= n; i++)
             {
                 var time = startTime.AddMinutes(i * 10);
                 string caseId = $"C_{i}";
@@ -60,7 +59,6 @@ namespace ProcessMiner.Core.DataGeneration
                     time = time.AddMinutes(30); writer.WriteLine($"{caseId},{time:yyyy-MM-dd HH:mm:ss},Rechazo_Manual,Empleado,0");
                 }
             }
-            Console.WriteLine("Stress test dataset generated!");
         }
     }
 }
