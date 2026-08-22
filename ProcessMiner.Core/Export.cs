@@ -47,4 +47,72 @@ public class GraphvizExporter
         sb.AppendLine("}");
         return sb.ToString();
     }
+
+    public static string ExportToDotWithPerformance(string[] activities, RelationshipType[,] footprintMatrix, TimeSpan[,] avgTimes, TimeSpan bottleneckThreshold)
+    {
+        var sb = new StringBuilder();
+
+        sb.AppendLine("digraph ProcessGraph {");
+        sb.AppendLine("  rankdir=UD;");
+        sb.AppendLine("  node [shape=box, style=filled, fillcolor=\"#f8f9fa\", color=\"#ced4da\", fontname=\"Helvetica\", margin=0.2];");
+        sb.AppendLine("  edge [fontname=\"Helvetica\", fontsize=10];");
+        sb.AppendLine();
+
+        int n = activities.Length;
+
+        // Nodes
+        for (int i = 0; i < n; i++)
+        {
+            sb.AppendLine($"  {i} [label=\"{activities[i].Replace("_", " ")}\"];");
+        }
+        sb.AppendLine();
+
+        // Edges with performance metrics
+        for (int i = 0; i < n; i++)
+        {
+            for (int j = 0; j < n; j++)
+            {
+                RelationshipType relation = footprintMatrix[i, j];
+                TimeSpan avgTime = avgTimes[i, j];
+                string timeLabel = FormatTimeSpan(avgTime);
+
+                if (relation == RelationshipType.Causal)
+                {
+                    
+                    // Determine edge color based on performance
+                    if (avgTime > bottleneckThreshold)
+                    {
+                        // Bottleneck: Slow
+                        sb.AppendLine($"  {i} -> {j} [label=\" {timeLabel}\", color=\"#dc3545\", fontcolor=\"#dc3545\", penwidth=2.0];");
+                    }
+                    else
+                    {
+                        // Normal: Fast
+                        sb.AppendLine($"  {i} -> {j} [label=\" {timeLabel}\", color=\"#495057\"];");
+                    }
+                }
+                else if (relation == RelationshipType.Concurrent && i < j)
+                {
+                    sb.AppendLine($"  {i} -> {j} [dir=both, style=dashed, color=\"#d63384\", label=\" ||  {timeLabel}\"];");
+                }
+            }
+        }
+
+        sb.AppendLine("}");
+        return sb.ToString();
+    }
+
+    private static string FormatTimeSpan(TimeSpan timeSpan) 
+    { 
+    
+        if (timeSpan.TotalDays > 1)
+            return $"{(int)timeSpan.TotalDays}d {timeSpan.Hours}h {timeSpan.Minutes}m {timeSpan.Seconds}s";
+        else if (timeSpan.TotalHours > 1)
+            return $"{(int)timeSpan.TotalHours}h {timeSpan.Minutes}m {timeSpan.Seconds}s";
+        else if (timeSpan.TotalMinutes > 1)
+            return $"{(int)timeSpan.TotalMinutes}m {timeSpan.Seconds}s";
+        else
+            return $"{(int)timeSpan.TotalSeconds}s";
+
+    }
 }

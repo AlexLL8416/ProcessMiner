@@ -6,9 +6,6 @@ using ProcessMiner.Core.Export;
 using ProcessMiner.Core.Benchmarking;
 using System.Diagnostics;
 
-/*
-
-COMENTED OUT FOR TESTING PURPOSES OF BENCHMARKING SERVICE
 
 Console.WriteLine("Starting Process Miner Engine\n");
 
@@ -27,7 +24,7 @@ Stopwatch sw = Stopwatch.StartNew();
 // Commented out for testing fast parsing with stress test dataset
 //var rawEvents = CsvParser.ParseLazy(filePath2);
 
-var rawEvents = CsvParser.FastParse(filePath2);
+var rawEvents = CsvParser.FastParseCache(filePath);
 
 var tracesDictionary = new Dictionary<string, ProcessMiner.Core.Models.Trace>();
 
@@ -73,11 +70,17 @@ Console.WriteLine("\n\nExporting to Graphviz...\n");
 var dot = GraphvizExporter.ExportToDot(alphaMiner.Activities, alphaMiner.FootprintMatrix);
 Console.WriteLine(dot);
 
+// Export to Graphviz DOT format with performance metrics
+var umbral = TimeSpan.FromHours(1); // Example threshold for bottleneck
+string dotWithPerformance = GraphvizExporter.ExportToDotWithPerformance(alphaMiner.Activities, alphaMiner.FootprintMatrix, alphaMiner.AverageTrasitionTime, umbral);
+Console.WriteLine("\n\nExporting to Graphviz with performance metrics...\n");
+Console.WriteLine(dotWithPerformance);
+
 sw.Stop();
 
 Console.WriteLine("\n\nExecution time: {0} ms", sw.ElapsedMilliseconds);
 
-*/
+
 /*
 
 Commented out for testing purposes of BenchmarkService because the analisys have already been done and the results are in the BenchmarkingResults.txt file

@@ -8,12 +8,14 @@ namespace ProcessMiner.Core.Algorithms
 
         public string[] Activities { get; private set; }
         public RelationshipType[,] FootprintMatrix { get; private set; }
+        public TimeSpan[,] AverageTrasitionTime { get; private set; }
 
         private Dictionary<string, int> activityIndexMap;
 
         public AlphaMiner(IEnumerable<Trace> traces)
         {
             BuildMatrix(traces);
+            CalculatePerformance(traces);
         }
 
         private void BuildMatrix(IEnumerable<Trace> traces)
@@ -73,6 +75,48 @@ namespace ProcessMiner.Core.Algorithms
                         FootprintMatrix[i, j] = RelationshipType.NoRelation;
                     }
 
+                }
+            }
+        }
+
+        private void CalculatePerformance(IEnumerable<Trace> traces)
+        {
+            int n = Activities.Length;
+            AverageTrasitionTime = new TimeSpan[n, n];
+            var transitionCounts = new int[n, n];
+            var totalMiliseconds = new double[n, n];
+
+            // Calculate total transition times and counts
+            foreach (var trace in traces)
+            {
+                for (int i = 0; i < trace.Events.Count - 1; i++)
+                {
+                    int fromIndex = activityIndexMap[trace.Events[i].Activity];
+                    int toIndex = activityIndexMap[trace.Events[i + 1].Activity];
+
+                    if (FootprintMatrix[fromIndex, toIndex] != RelationshipType.NoRelation) 
+                    {
+                        TimeSpan transitionTime = trace.Events[i + 1].Timestamp - trace.Events[i].Timestamp;
+                        transitionCounts[fromIndex, toIndex]++;
+                        totalMiliseconds[fromIndex, toIndex] += transitionTime.TotalMilliseconds;
+                    }
+                }
+            }
+
+            // Calculate average transition times
+            for (int i = 0; i < n; i++)
+            {
+                for (int j = 0; j < n; j++)
+                {
+                    if (transitionCounts[i, j] > 0)
+                    {
+                        double averageMilliseconds = totalMiliseconds[i, j] / transitionCounts[i, j];
+                        AverageTrasitionTime[i, j] = TimeSpan.FromMilliseconds(averageMilliseconds);
+                    }
+                    else
+                    {
+                        AverageTrasitionTime[i, j] = TimeSpan.Zero;
+                    }
                 }
             }
         }

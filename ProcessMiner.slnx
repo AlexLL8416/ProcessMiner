@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+  </Folder>
   <Project Path="ProcessMiner.ConsoleClient/ProcessMiner.ConsoleClient.csproj" />
   <Project Path="ProcessMiner.Core/ProcessMiner.Core.csproj" />
   <Project Path="ProcessMiner.Tests/ProcessMiner.Tests.csproj" />
