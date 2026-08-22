@@ -9,6 +9,7 @@ namespace ProcessMiner.Core.Algorithms
         public string[] Activities { get; private set; }
         public RelationshipType[,] FootprintMatrix { get; private set; }
         public TimeSpan[,] AverageTrasitionTime { get; private set; }
+        public double[] AverageActivityCost { get; private set; }
 
         private Dictionary<string, int> activityIndexMap;
 
@@ -86,6 +87,9 @@ namespace ProcessMiner.Core.Algorithms
             var transitionCounts = new int[n, n];
             var totalMiliseconds = new double[n, n];
 
+            AverageActivityCost = new double[n];
+            var activityCounts = new int[n];
+
             // Calculate total transition times and counts
             foreach (var trace in traces)
             {
@@ -101,11 +105,25 @@ namespace ProcessMiner.Core.Algorithms
                         totalMiliseconds[fromIndex, toIndex] += transitionTime.TotalMilliseconds;
                     }
                 }
+                // Calculate average activity cost
+                foreach (var activity in trace.Events)
+                {
+                    int index = activityIndexMap[activity.Activity];
+                    activityCounts[index]++;
+                    AverageActivityCost[index] += activity.Cost;
+                }
             }
 
-            // Calculate average transition times
+            // Calculate average transition times and costs
             for (int i = 0; i < n; i++)
             {
+                // Cost
+                if(activityCounts[i] > 0)
+                {
+                    AverageActivityCost[i] /= activityCounts[i];
+                }
+
+                // Time
                 for (int j = 0; j < n; j++)
                 {
                     if (transitionCounts[i, j] > 0)

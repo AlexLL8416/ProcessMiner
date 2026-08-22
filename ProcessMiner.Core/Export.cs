@@ -48,7 +48,7 @@ public class GraphvizExporter
         return sb.ToString();
     }
 
-    public static string ExportToDotWithPerformance(string[] activities, RelationshipType[,] footprintMatrix, TimeSpan[,] avgTimes, TimeSpan bottleneckThreshold)
+    public static string ExportToDotWithPerformance(string[] activities, RelationshipType[,] footprintMatrix, TimeSpan[,] avgTimes, TimeSpan bottleneckThreshold, double[] avgActivityCosts, double costThreshold)
     {
         var sb = new StringBuilder();
 
@@ -63,7 +63,14 @@ public class GraphvizExporter
         // Nodes
         for (int i = 0; i < n; i++)
         {
-            sb.AppendLine($"  {i} [label=\"{activities[i].Replace("_", " ")}\"];");
+            double cost = avgTimes != null ? avgActivityCosts[i] : 0; 
+            string label = $"{activities[i].Replace("_", " ")}\\nCoste medio: {cost:F2}";
+
+            // Si la tarea cuesta más de 20 euros, encendemos la alarma visual
+            string fillColor = cost > costThreshold ? "#f8d7da" : "#f8f9fa";
+            string borderColor = cost > costThreshold ? "#dc3545" : "#ced4da";
+
+            sb.AppendLine($"  {i} [label=\"{label}\", fillcolor=\"{fillColor}\", color=\"{borderColor}\"];");
         }
         sb.AppendLine();
 
@@ -113,6 +120,40 @@ public class GraphvizExporter
             return $"{(int)timeSpan.TotalMinutes}m {timeSpan.Seconds}s";
         else
             return $"{(int)timeSpan.TotalSeconds}s";
+    }
 
+    public static string ExportToDotSocialGraph(int[,] HandoverMatrix, string[] resources)
+    {
+        var sb = new StringBuilder();
+
+        sb.AppendLine("digraph SocialGraph {");
+        sb.AppendLine("  rankdir=UD;");
+        sb.AppendLine("  node [shape=circle, style=filled, fillcolor=\"#f8f9fa\", color=\"#ced4da\", fontname=\"Helvetica\", margin=0.2];");
+        sb.AppendLine("  edge [fontname=\"Helvetica\", fontsize=10];");
+        sb.AppendLine();
+
+        int n = HandoverMatrix.GetLength(0);
+
+        // Nodes
+        for (int i = 0; i < n; i++)
+        {
+            sb.AppendLine($"  {i} [label=\"{resources[i]}\"];");
+        }
+        sb.AppendLine();
+
+        // Edges
+        for (int i = 0; i < n; i++)
+        {
+            for (int j = 0; j < n; j++)
+            {
+                if (HandoverMatrix[i, j] > 0)
+                {
+                    sb.AppendLine($"  {i} -> {j} [label=\"{HandoverMatrix[i, j]}\"];");
+                }
+            }
+        }
+
+        sb.AppendLine("}");
+        return sb.ToString();
     }
 }

@@ -72,9 +72,16 @@ Console.WriteLine(dot);
 
 // Export to Graphviz DOT format with performance metrics
 var umbral = TimeSpan.FromHours(1); // Example threshold for bottleneck
-string dotWithPerformance = GraphvizExporter.ExportToDotWithPerformance(alphaMiner.Activities, alphaMiner.FootprintMatrix, alphaMiner.AverageTrasitionTime, umbral);
+var costThreshold = 20.0; // Example threshold for high-cost activities
+string dotWithPerformance = GraphvizExporter.ExportToDotWithPerformance(alphaMiner.Activities, alphaMiner.FootprintMatrix, alphaMiner.AverageTrasitionTime, umbral, alphaMiner.AverageActivityCost, costThreshold);
 Console.WriteLine("\n\nExporting to Graphviz with performance metrics...\n");
 Console.WriteLine(dotWithPerformance);
+
+// Resource Mining
+var resourceMining = new ResourceMining(tracesDictionary.Values);
+var dotSocialGraph = GraphvizExporter.ExportToDotSocialGraph(resourceMining.HandoverMatrix, resourceMining.Resources);
+Console.WriteLine("\n\nExporting to Social Graph...\n");
+Console.WriteLine(dotSocialGraph);
 
 sw.Stop();
 
