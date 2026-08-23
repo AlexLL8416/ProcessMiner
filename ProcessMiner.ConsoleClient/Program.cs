@@ -5,8 +5,9 @@ using ProcessMiner.Core.Models;
 using ProcessMiner.Core.Export;
 using ProcessMiner.Core.Benchmarking;
 using System.Diagnostics;
+using ProcessMiner.Core.Analysis;
 
-
+/*
 Console.WriteLine("Starting Process Miner Engine\n");
 
 string filePath = "C:\\Users\\usuario\\source\\repos\\ProcessMiner\\ProcessMiner.ConsoleClient\\event_log_test.csv";
@@ -24,7 +25,7 @@ Stopwatch sw = Stopwatch.StartNew();
 // Commented out for testing fast parsing with stress test dataset
 //var rawEvents = CsvParser.ParseLazy(filePath2);
 
-var rawEvents = CsvParser.FastParseCache(filePath);
+var rawEvents = CsvParser.FastParseCache(filePath2);
 
 var tracesDictionary = new Dictionary<string, ProcessMiner.Core.Models.Trace>();
 
@@ -82,6 +83,19 @@ var resourceMining = new ResourceMining(tracesDictionary.Values);
 var dotSocialGraph = GraphvizExporter.ExportToDotSocialGraph(resourceMining.HandoverMatrix, resourceMining.Resources);
 Console.WriteLine("\n\nExporting to Social Graph...\n");
 Console.WriteLine(dotSocialGraph);
+
+// Heuristic Miner
+Console.WriteLine("\n\nStarting Heuristic Miner...");
+var heuristicMiner = new HeuristicMiner(tracesDictionary.Values);
+Console.WriteLine("\n\nProbabilities matrix built successfully:\n");
+Console.WriteLine(heuristicMiner.PrintMatrix());
+Console.WriteLine("\n\nExporting to Graphviz...\n");
+Console.WriteLine(GraphvizExporter.ExportToDotHeursiticMiner(0.45, 0.7, heuristicMiner.Activities, heuristicMiner.DependencyMatrix, heuristicMiner.ConcurrencyMatrix, heuristicMiner.DirectSuccessionMatrix));
+
+// Variant Analysis
+Console.WriteLine("\n\nStarting Variant Analysis...");
+var variants = VarientAnalyzer.AnalyzeVariants(tracesDictionary.Values, 5);
+Console.WriteLine(VarientAnalyzer.printVariants(variants));
 
 sw.Stop();
 

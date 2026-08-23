@@ -2,6 +2,7 @@
   <Folder Name="/Solution Items/">
     <File Path=".editorconfig" />
   </Folder>
+  <Project Path="ProcessMiner.Api/ProcessMiner.Api.csproj" Id="2f984920-b90c-4052-817c-5605ca3a9af0" />
   <Project Path="ProcessMiner.ConsoleClient/ProcessMiner.ConsoleClient.csproj" />
   <Project Path="ProcessMiner.Core/ProcessMiner.Core.csproj" />
   <Project Path="ProcessMiner.Tests/ProcessMiner.Tests.csproj" />

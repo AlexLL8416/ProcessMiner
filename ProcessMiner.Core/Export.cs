@@ -156,4 +156,88 @@ public class GraphvizExporter
         sb.AppendLine("}");
         return sb.ToString();
     }
+
+    public static string ExportToDotHeursiticMiner(double dependencyThreshold, double concurrencyThreshold, string[] activities, double[,] dependencyMatrix, double[,] concurrencyMatrix, int[,] directSuccessionMatrix)
+    {
+        var sb = new StringBuilder();
+        sb.AppendLine("digraph HeuristicGraph {");
+        sb.AppendLine("  rankdir=UD;");
+        sb.AppendLine("  node [shape=box, style=filled, fillcolor=\"#e9ecef\", color=\"#6c757d\", fontname=\"Helvetica\"];");
+        sb.AppendLine("  edge [fontname=\"Helvetica\", fontsize=10];");
+        sb.AppendLine();
+
+        int n = activities.Length;
+        for (int i = 0; i < n; i++)
+        {
+            sb.AppendLine($"  {i} [label=\"{activities[i].Replace("_", " ")}\"];");
+        }
+        sb.AppendLine();
+
+        int maxFreq = 0;
+        for (int i = 0; i < n; i++)
+        {
+            for (int j = 0; j < n; j++)
+            {
+                if (dependencyMatrix[i, j] >= dependencyThreshold)
+                {
+                    if (directSuccessionMatrix[i, j] > maxFreq)
+                        maxFreq = directSuccessionMatrix[i, j];
+                }
+            }
+        }
+
+        if (maxFreq == 0) maxFreq = 1;
+
+        for (int i = 0; i < n; i++)
+        {
+            for (int j = 0; j < n; j++)
+            {
+                if (i >= j && concurrencyMatrix[i, j] >= concurrencyThreshold)
+                    continue;
+
+                double dependency = dependencyMatrix[i, j];
+                double concurrency = concurrencyMatrix[i, j];
+
+                if (concurrency >= concurrencyThreshold && Math.Abs(dependency) < dependencyThreshold)
+                {
+                    // Concurrency
+                    sb.AppendLine($"  {i} -> {j} [dir=both, style=dashed, color=\"#d63384\", label=\" || {concurrency:F2}\"];");
+                }
+                else if (dependency >= dependencyThreshold)
+                {
+                    // Causality
+                    int frequency = directSuccessionMatrix[i, j];
+
+                    // Calculate intensity based on frequency relative to maxFreq
+                    double intensity = (double)frequency / maxFreq;
+
+                    // Color based on intensity (heatmap from light gray to dark blue)
+                    string edgeColor = GetHeatmapColor(intensity);
+
+                    // Width based on intensity (1.0 to 2.5)
+                    double penwidth = 1.0 + (intensity * 1.5);
+
+                    sb.AppendLine($"  {i} -> {j} [label=\" {dependency:F2}\\n({frequency:N0})\", penwidth={penwidth.ToString("F1", System.Globalization.CultureInfo.InvariantCulture)}, color=\"{edgeColor}\", fontcolor=\"{edgeColor}\"];");
+                }
+            }
+        }
+
+        sb.AppendLine("}");
+        return sb.ToString();
+    }
+
+    private static string GetHeatmapColor(double intensity)
+    {
+        // Clamp intensity between 0 and 1
+        intensity = Math.Max(0, Math.Min(1, intensity));
+        // Inicial RGB: Light Gray (#adb5bd) -> (173, 181, 189)
+        int r1 = 173, g1 = 181, b1 = 189;
+        // Final RGB: Dark Blue (#003049) -> (0, 48, 73)
+        int r2 = 0, g2 = 48, b2 = 73;
+
+        int r = (int)(r1 + (r2 - r1) * intensity);
+        int g = (int)(g1 + (g2 - g1) * intensity);
+        int b = (int)(b1 + (b2 - b1) * intensity);
+        return $"#{r:X2}{g:X2}{b:X2}";
+    }
 }

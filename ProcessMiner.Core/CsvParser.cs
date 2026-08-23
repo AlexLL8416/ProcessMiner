@@ -169,4 +169,30 @@ public class CsvParser
         }
     }
 
+    public static IEnumerable<Trace> ParseAndOrdering(string filePath) 
+    {
+        var rawEvents = CsvParser.FastParseCache(filePath);
+
+        var tracesDictionary = new Dictionary<string, ProcessMiner.Core.Models.Trace>();
+
+        // Group events by CaseId and create traces
+        foreach (var rawEvent in rawEvents)
+        {
+            if (!tracesDictionary.TryGetValue(rawEvent.CaseId, out var trace))
+            {
+                trace = new ProcessMiner.Core.Models.Trace(rawEvent.CaseId);
+                tracesDictionary[rawEvent.CaseId] = trace;
+            }
+            trace.Events.Add(rawEvent);
+        }
+
+        // Sort events in each trace by timestamp
+        foreach (var trace in tracesDictionary.Values)
+        {
+            trace.Events.Sort((a, b) => a.Timestamp.CompareTo(b.Timestamp));
+        }
+
+        return tracesDictionary.Values;
+    }
+
 }
