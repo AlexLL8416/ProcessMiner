@@ -201,7 +201,7 @@ public class GraphvizExporter
                 if (concurrency >= concurrencyThreshold && Math.Abs(dependency) < dependencyThreshold)
                 {
                     // Concurrency
-                    sb.AppendLine($"  {i} -> {j} [dir=both, style=dashed, color=\"#d63384\", label=\" || {concurrency:F2}\"];");
+                    sb.AppendLine($"  {i} -> {j} [dir=both, style=dashed, color=\"#d63384\", label=\" || {concurrency:F2}\\n({directSuccessionMatrix[i, j]+ directSuccessionMatrix[j, i]:N0})\"];");
                 }
                 else if (dependency >= dependencyThreshold)
                 {

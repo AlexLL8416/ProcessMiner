@@ -6,8 +6,10 @@ using ProcessMiner.Core.Algorithms;
 using ProcessMiner.Core.Analysis;
 using ProcessMiner.Core.Data;
 using ProcessMiner.Core.Export;
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq; // Necesario para usar SelectMany, GroupBy, etc.
 using System.Threading.Tasks;
 
 namespace ProcessMiner.Api.Controllers
@@ -17,6 +19,7 @@ namespace ProcessMiner.Api.Controllers
     public class MinerController : ControllerBase
     {
         [HttpPost("upload")]
+        [RequestSizeLimit(200_000_000)]
         public async Task<IActionResult> UploadLog(IFormFile file)
         {
             if (file == null || file.Length == 0)
@@ -37,6 +40,33 @@ namespace ProcessMiner.Api.Controllers
                 var alphaMiner = new AlphaMiner(traces);
                 var resourceMiner = new ResourceMining(traces);
                 var topVariants = VariantAnalyzer.AnalyzeVariants(traces, 5);
+
+                var allEvents = traces.SelectMany(t => t.Events).ToList();
+
+                var topResource = allEvents
+                    .Where(e => !string.IsNullOrEmpty(e.Resource))
+                    .GroupBy(e => e.Resource)
+                    .OrderByDescending(g => g.Count())
+                    .Select(g => g.Key)
+                    .FirstOrDefault() ?? "N/A";
+
+                var eventsOverTime = allEvents
+                    .GroupBy(e => e.Timestamp.Date)
+                    .OrderBy(g => g.Key)
+                    .Select(g => new TimeSeriePoint
+                    {
+                        Date = g.Key.ToString("yyyy-MM-dd"),
+                        Value = g.Count()
+                    }).ToList();
+
+                var costOverTime = allEvents
+                    .GroupBy(e => e.Timestamp.Date)
+                    .OrderBy(g => g.Key)
+                    .Select(g => new TimeSeriePoint
+                    {
+                        Date = g.Key.ToString("yyyy-MM-dd"),
+                        Value = (double)g.Sum(e => e.Cost) 
+                    }).ToList();
 
                 var dependencyRows = new List<MatrixRow>();
                 var concurrencyRows = new List<MatrixRow>();
@@ -62,14 +92,26 @@ namespace ProcessMiner.Api.Controllers
                 var response = new MiningResponse
                 {
                     HeuristicGraphDot = GraphvizExporter.ExportToDotHeursiticMiner(0.8, 0.8, heuristicMiner.Activities, heuristicMiner.DependencyMatrix, heuristicMiner.ConcurrencyMatrix, heuristicMiner.DirectSuccessionMatrix),
-                    AlphaGraphDot = GraphvizExporter.ExportToDotWithPerformance(alphaMiner.Activities,alphaMiner.FootprintMatrix,alphaMiner.AverageTrasitionTime, TimeSpan.FromHours(1), alphaMiner.AverageActivityCost, 20.0),
-                    SocialGraphDot = GraphvizExporter.ExportToDotSocialGraph(resourceMiner.HandoverMatrix,resourceMiner.Resources),
+                    AlphaGraphDot = GraphvizExporter.ExportToDotWithPerformance(alphaMiner.Activities, alphaMiner.FootprintMatrix, alphaMiner.AverageTrasitionTime, TimeSpan.FromHours(1), alphaMiner.AverageActivityCost, 20.0),
+                    SocialGraphDot = GraphvizExporter.ExportToDotSocialGraph(resourceMiner.HandoverMatrix, resourceMiner.Resources),
                     TopVariants = topVariants,
 
                     // Matrix
                     Activities = activitiesList,
                     DependencyMatrix = dependencyRows,
-                    ConcurrencyMatrix = concurrencyRows
+                    ConcurrencyMatrix = concurrencyRows,
+
+                    // Dashboard Data
+                    Dashboard = new GlobalStats
+                    {
+                        TotalCases = traces.Count(),
+                        TotalEvents = allEvents.Count,
+                        UniqueActivities = heuristicMiner.Activities.Length,
+                        UniqueResources = resourceMiner.Resources.Length,
+                        TopResource = topResource,
+                        CostOverTime = costOverTime,
+                        EventsOverTime = eventsOverTime
+                    }
                 };
 
                 return Ok(response);

@@ -13,6 +13,7 @@ namespace ProcessMiner.Api.Models
         public List<string> Activities { get; set; }
         public List<MatrixRow> DependencyMatrix { get; set; }
         public List<MatrixRow> ConcurrencyMatrix { get; set; }
+        public GlobalStats Dashboard { get; set; }
     }
 
     // Auxiliar classes for clean serialization
@@ -20,5 +21,24 @@ namespace ProcessMiner.Api.Models
     {
         public string ActivityName { get; set; }
         public List<double> Values { get; set; }
+    }
+
+    public class GlobalStats 
+    { 
+        public int TotalCases { get; set; }
+        public int TotalEvents { get; set; }
+        public int UniqueActivities { get; set; }
+        public int UniqueResources { get; set; }
+        public string TopResource { get; set; }
+
+        // Temporal series
+        public List<TimeSeriePoint> CostOverTime { get; set; }
+        public List<TimeSeriePoint> EventsOverTime { get; set; }
+    }
+
+    public class TimeSeriePoint 
+    { 
+        public string Date { get; set; }
+        public double Value { get; set; }
     }
 }
