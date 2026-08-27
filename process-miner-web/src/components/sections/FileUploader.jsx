@@ -20,11 +20,11 @@ const FileUploader = ({ onFileSelect, isLoading }) => {
 
         if (e.dataTransfer.files && e.dataTransfer.files[0]) {
             const file = e.dataTransfer.files[0];
-            if (file.name.endsWith('.csv')) {
+            if (file.name.endsWith('.csv') || file.name.endsWith('.xes')) {
                 setSelectedFileName(file.name);
                 onFileSelect(file);
             } else {
-                alert("FORMATO INCORRECTO: REQUIERE ARCHIVO .CSV");
+                alert("FORMATO INCORRECTO: REQUIERE ARCHIVO .CSV O .XES");
             }
         }
     }, [onFileSelect]);
@@ -53,7 +53,7 @@ const FileUploader = ({ onFileSelect, isLoading }) => {
             >
                 <input
                     type="file"
-                    accept=".csv"
+                    accept=".csv,.xes"
                     onChange={handleChange}
                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                     disabled={isLoading}
@@ -105,7 +105,7 @@ const FileUploader = ({ onFileSelect, isLoading }) => {
                                     Inserte Data Log
                                 </p>
                                 <p className="text-sm text-ink-muted mt-3 font-bold uppercase tracking-widest">
-                                    Arrastre el archivo (.CSV) a esta consola
+                                    Arrastre el archivo (.CSV o .XES) a esta consola
                                 </p>
                             </div>
                         </>

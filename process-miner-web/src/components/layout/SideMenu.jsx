@@ -7,7 +7,7 @@ const SideMenu = ({ menuItems, activeMenu, setActiveMenu, hasData }) => {
             {/* Placa de Identificación (Logo) */}
             <div className="h-28 flex flex-col justify-center px-8 border-b-2 border-recessed relative">
                 <span className="text-xs font-mono text-ink-muted uppercase tracking-widest mb-1">
-                    ALL
+                    A.L.L.
                 </span>
                 <span className="text-2xl font-black text-ink tracking-tight font-sans drop-shadow-[0_1px_1px_#ffffff]">
                     Process<span className="text-accent"> Miner</span>

@@ -157,7 +157,8 @@ public class GraphvizExporter
         return sb.ToString();
     }
 
-    public static string ExportToDotHeursiticMiner(double dependencyThreshold, double concurrencyThreshold, string[] activities, double[,] dependencyMatrix, double[,] concurrencyMatrix, int[,] directSuccessionMatrix)
+    // Añadimos el nuevo parámetro: int frequencyThreshold
+    public static string ExportToDotHeursiticMiner(double dependencyThreshold, double concurrencyThreshold, int frequencyThreshold, string[] activities, double[,] dependencyMatrix, double[,] concurrencyMatrix, int[,] directSuccessionMatrix)
     {
         var sb = new StringBuilder();
         sb.AppendLine("digraph HeuristicGraph {");
@@ -178,7 +179,8 @@ public class GraphvizExporter
         {
             for (int j = 0; j < n; j++)
             {
-                if (dependencyMatrix[i, j] >= dependencyThreshold)
+                // Calibration of color and width
+                if (dependencyMatrix[i, j] >= dependencyThreshold && directSuccessionMatrix[i, j] >= frequencyThreshold)
                 {
                     if (directSuccessionMatrix[i, j] > maxFreq)
                         maxFreq = directSuccessionMatrix[i, j];
@@ -198,26 +200,24 @@ public class GraphvizExporter
                 double dependency = dependencyMatrix[i, j];
                 double concurrency = concurrencyMatrix[i, j];
 
-                if (concurrency >= concurrencyThreshold && Math.Abs(dependency) < dependencyThreshold)
+                // Real frequency
+                int freqCausal = directSuccessionMatrix[i, j];
+                int freqConc = directSuccessionMatrix[i, j] + directSuccessionMatrix[j, i];
+
+                if (concurrency >= concurrencyThreshold && Math.Abs(dependency) < dependencyThreshold && freqConc >= frequencyThreshold)
                 {
                     // Concurrency
-                    sb.AppendLine($"  {i} -> {j} [dir=both, style=dashed, color=\"#d63384\", label=\" || {concurrency:F2}\\n({directSuccessionMatrix[i, j]+ directSuccessionMatrix[j, i]:N0})\"];");
+                    sb.AppendLine($"  {i} -> {j} [dir=both, style=dashed, color=\"#d63384\", label=\" || {concurrency:F2}\\n({freqConc:N0})\"];");
                 }
-                else if (dependency >= dependencyThreshold)
+
+                else if (dependency >= dependencyThreshold && freqCausal >= frequencyThreshold)
                 {
                     // Causality
-                    int frequency = directSuccessionMatrix[i, j];
-
-                    // Calculate intensity based on frequency relative to maxFreq
-                    double intensity = (double)frequency / maxFreq;
-
-                    // Color based on intensity (heatmap from light gray to dark blue)
+                    double intensity = (double)freqCausal / maxFreq;
                     string edgeColor = GetHeatmapColor(intensity);
-
-                    // Width based on intensity (1.0 to 2.5)
                     double penwidth = 1.0 + (intensity * 1.5);
 
-                    sb.AppendLine($"  {i} -> {j} [label=\" {dependency:F2}\\n({frequency:N0})\", penwidth={penwidth.ToString("F1", System.Globalization.CultureInfo.InvariantCulture)}, color=\"{edgeColor}\", fontcolor=\"{edgeColor}\"];");
+                    sb.AppendLine($"  {i} -> {j} [label=\" {dependency:F2}\\n({freqCausal:N0})\", penwidth={penwidth.ToString("F1", System.Globalization.CultureInfo.InvariantCulture)}, color=\"{edgeColor}\", fontcolor=\"{edgeColor}\"];");
                 }
             }
         }

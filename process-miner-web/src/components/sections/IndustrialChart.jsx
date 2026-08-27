@@ -41,7 +41,7 @@ export const IndustrialChart = ({ data, title, dataKey = "value", xAxisKey = "da
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" stroke="#babecc" vertical={false} />
-            <XAxis dataKey={xAxisKey} tick={{ fontSize: 10, fontFamily: 'monospace', fill: '#4a5568', fontWeight: 'bold' }} tickLine={false} axisLine={false} />
+            <XAxis dataKey={xAxisKey} tick={{ fontSize: 10, fontFamily: 'monospace', fill: '#4a5568', fontWeight: 'bold' }} tickLine={false} axisLine={false} minTickGap={50}/>
             <YAxis tick={{ fontSize: 10, fontFamily: 'monospace', fill: '#4a5568', fontWeight: 'bold' }} tickLine={false} axisLine={false} />
             <Tooltip content={<TechnicalTooltip unit={unit} />} cursor={{ stroke: '#a3b1c6', strokeWidth: 2, strokeDasharray: '5 5' }} />
             <Area type="monotone" dataKey={dataKey} stroke={color} strokeWidth={3} fillOpacity={1} fill={`url(#gradient_${title.replace(/\s+/g, '')})`} activeDot={{ r: 6, fill: color, stroke: '#e0e5ec', strokeWidth: 2 }} />

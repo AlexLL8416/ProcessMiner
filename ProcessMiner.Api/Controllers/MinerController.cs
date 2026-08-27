@@ -6,6 +6,7 @@ using ProcessMiner.Core.Algorithms;
 using ProcessMiner.Core.Analysis;
 using ProcessMiner.Core.Data;
 using ProcessMiner.Core.Export;
+using ProcessMiner.Core.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -20,7 +21,7 @@ namespace ProcessMiner.Api.Controllers
     {
         [HttpPost("upload")]
         [RequestSizeLimit(200_000_000)]
-        public async Task<IActionResult> UploadLog(IFormFile file)
+        public async Task<IActionResult> UploadLog(IFormFile file, [FromForm] double dependency = 0.5, [FromForm] double concurrency = 0.8, [FromForm] double support = 0.01)
         {
             if (file == null || file.Length == 0)
                 return BadRequest("No se ha enviado ningún archivo.");
@@ -34,7 +35,21 @@ namespace ProcessMiner.Api.Controllers
                 }
 
                 // Execute Core
-                var traces = CsvParser.ParseAndOrdering(tempPath);
+                IEnumerable<Trace> traces;
+                string extension = Path.GetExtension(file.FileName).ToLower();
+
+                if (extension == ".xes")
+                {
+                    traces = XesParser.Parse(tempPath);
+                }
+                else if (extension == ".csv")
+                {
+                    traces = CsvParser.ParseAndOrdering(tempPath);
+                }
+                else
+                {
+                    return BadRequest("Formato de archivo no soportado. Use .csv o .xes");
+                }
 
                 var heuristicMiner = new HeuristicMiner(traces);
                 var alphaMiner = new AlphaMiner(traces);
@@ -88,10 +103,12 @@ namespace ProcessMiner.Api.Controllers
                     concurrencyRows.Add(new MatrixRow { ActivityName = activitiesList[i], Values = concValues });
                 }
 
+                int dynamicFrequencyThreshold = Math.Max(1, (int)Math.Ceiling(traces.Count() * support));
+
                 // Build the full JSON response
                 var response = new MiningResponse
                 {
-                    HeuristicGraphDot = GraphvizExporter.ExportToDotHeursiticMiner(0.8, 0.8, heuristicMiner.Activities, heuristicMiner.DependencyMatrix, heuristicMiner.ConcurrencyMatrix, heuristicMiner.DirectSuccessionMatrix),
+                    HeuristicGraphDot = GraphvizExporter.ExportToDotHeursiticMiner(dependency, concurrency, dynamicFrequencyThreshold, heuristicMiner.Activities, heuristicMiner.DependencyMatrix, heuristicMiner.ConcurrencyMatrix, heuristicMiner.DirectSuccessionMatrix),
                     AlphaGraphDot = GraphvizExporter.ExportToDotWithPerformance(alphaMiner.Activities, alphaMiner.FootprintMatrix, alphaMiner.AverageTrasitionTime, TimeSpan.FromHours(1), alphaMiner.AverageActivityCost, 20.0),
                     SocialGraphDot = GraphvizExporter.ExportToDotSocialGraph(resourceMiner.HandoverMatrix, resourceMiner.Resources),
                     TopVariants = topVariants,
