@@ -63,7 +63,7 @@ namespace ProcessMiner.Api.Controllers
                 var resourceMiner = new ResourceMining(traces);
                 var topVariants = VariantAnalyzer.AnalyzeVariants(traces, 5);
 
-                var allEvents = traces.SelectMany(t => t.Events).ToList();
+                var allEvents = traces.SelectMany(t => t.Events);
 
                 var topResource = allEvents
                     .Where(e => !string.IsNullOrEmpty(e.Resource))
@@ -129,7 +129,7 @@ namespace ProcessMiner.Api.Controllers
                     Dashboard = new GlobalStats
                     {
                         TotalCases = traces.Count(),
-                        TotalEvents = allEvents.Count,
+                        TotalEvents = allEvents.Count(),
                         UniqueActivities = heuristicMiner.Activities.Length,
                         UniqueResources = resourceMiner.Resources.Length,
                         TopResource = topResource,

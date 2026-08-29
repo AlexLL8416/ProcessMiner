@@ -20,7 +20,7 @@ function App() {
   const [engineStatus, setEngineStatus] = useState('waking');
 
   // URL BASE (Acuérdate de cambiar esto por la de Render cuando subas la API)
-  const API_BASE_URL = 'https://localhost:7277/api/Miner';
+  const API_BASE_URL = 'https://processminer.onrender.com/api/Miner';
 
   // --- SECUENCIA DE WARM-UP (Ping al servidor en Render) ---
   useEffect(() => {
@@ -28,8 +28,7 @@ function App() {
 
     const wakeUpServer = async () => {
       try {
-        // Render pausa la petición mientras enciende el contenedor. 
-        // Le damos un timeout largo (60s) para que espere.
+        // Render pauses petition while it starts
         await axios.get(`${API_BASE_URL}/health`, { timeout: 60000 });
 
         if (isMounted) {
@@ -38,7 +37,6 @@ function App() {
         }
       } catch (err) {
         console.warn("El servidor sigue dormido o hay error. Reintentando en 5s...");
-        // Si falla (ej. da un 502 Gateway de Render mientras arranca), reintenta tras 5 segundos.
         if (isMounted && engineStatus !== 'ready') {
           setTimeout(wakeUpServer, 5000);
         }
@@ -49,7 +47,6 @@ function App() {
 
     return () => { isMounted = false; };
   }, []);
-  // -----------------------------------------------------------
 
   const handleFileProcess = async (fileOrConfig, maybeConfig) => {
     let fileToUse = currentFile;
@@ -76,10 +73,9 @@ function App() {
 
     const formData = new FormData();
     formData.append('file', fileToUse);
-    // Traducción estricta de puntos a comas para evitar el choque cultural de decimales en C#
-    formData.append('dependency', config.dependency.toString().replace('.', ','));
-    formData.append('concurrency', config.concurrency.toString().replace('.', ','));
-    formData.append('support', config.support.toString().replace('.', ','));
+    formData.append('dependency', config.dependency);
+    formData.append('concurrency', config.concurrency);
+    formData.append('support', config.support);
 
     try {
       const response = await axios.post(`${API_BASE_URL}/upload`, formData, {
