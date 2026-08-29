@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import MainLayout from './components/layout/MainLayout';
 import FileUploader from './components/sections/FileUploader';
@@ -7,23 +7,54 @@ import VariantTable from './components/sections/VariantTable';
 import MatrixHeatmap from './components/sections/MatrixHeatmap';
 import Dashboard from './components/sections/Dashboard';
 import AdvancedDashboard from './components/sections/AdvancedDashboard';
+import { AiOutlineSetting } from 'react-icons/ai';
 
 function App() {
 
   const [activeMenu, setActiveMenu] = useState('upload');
-  const [miningData, setMiningData] = useState(null); // JSON from backend
+  const [miningData, setMiningData] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [currentFile, setCurrentFile] = useState(null); // Active log file stored in memory
+  const [currentFile, setCurrentFile] = useState(null);
 
-  // Local backend URL
-  const API_URL = 'https://localhost:7277/api/Miner/upload';
+  // ESTADO DEL MOTOR: 'waking', 'ready', 'error'
+  const [engineStatus, setEngineStatus] = useState('waking');
 
-  // Modified to optionally accept a configuration object (sliders) alongside new or existing files
+  // URL BASE (Acuérdate de cambiar esto por la de Render cuando subas la API)
+  const API_BASE_URL = 'https://localhost:7277/api/Miner';
+
+  // --- SECUENCIA DE WARM-UP (Ping al servidor en Render) ---
+  useEffect(() => {
+    let isMounted = true;
+
+    const wakeUpServer = async () => {
+      try {
+        // Render pausa la petición mientras enciende el contenedor. 
+        // Le damos un timeout largo (60s) para que espere.
+        await axios.get(`${API_BASE_URL}/health`, { timeout: 60000 });
+
+        if (isMounted) {
+          setEngineStatus('ready');
+          console.log("Motor de minería operativo y conectado.");
+        }
+      } catch (err) {
+        console.warn("El servidor sigue dormido o hay error. Reintentando en 5s...");
+        // Si falla (ej. da un 502 Gateway de Render mientras arranca), reintenta tras 5 segundos.
+        if (isMounted && engineStatus !== 'ready') {
+          setTimeout(wakeUpServer, 5000);
+        }
+      }
+    };
+
+    wakeUpServer();
+
+    return () => { isMounted = false; };
+  }, []);
+  // -----------------------------------------------------------
+
   const handleFileProcess = async (fileOrConfig, maybeConfig) => {
     let fileToUse = currentFile;
     let config = { dependency: 0.5, concurrency: 0.8, support: 0.01 };
 
-    // Discriminate whether we receive a new file or directly configuration from sliders
     if (fileOrConfig instanceof File) {
       fileToUse = fileOrConfig;
       setCurrentFile(fileToUse);
@@ -36,7 +67,7 @@ function App() {
     }
 
     if (!fileToUse) {
-      alert('Please select a file first.');
+      alert('Por favor, selecciona un archivo primero.');
       setActiveMenu('upload');
       return;
     }
@@ -45,29 +76,22 @@ function App() {
 
     const formData = new FormData();
     formData.append('file', fileToUse);
-    // Append slider calibration parameters to the FormData
+    // Traducción estricta de puntos a comas para evitar el choque cultural de decimales en C#
     formData.append('dependency', config.dependency.toString().replace('.', ','));
     formData.append('concurrency', config.concurrency.toString().replace('.', ','));
     formData.append('support', config.support.toString().replace('.', ','));
 
     try {
-      // POST request to local API
-      const response = await axios.post(API_URL, formData, {
+      const response = await axios.post(`${API_BASE_URL}/upload`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
 
-      // Save response data
       setMiningData(response.data);
-      console.log("JSON received from C# with new thresholds:", response.data);
-
-      // If coming from upload, switch to the start menu automatically
-      if (activeMenu === 'upload') {
-        setActiveMenu('start');
-      }
+      if (activeMenu === 'upload') setActiveMenu('start');
 
     } catch (err) {
       console.error(err);
-      alert('Error analyzing the file. Make sure the C# backend is running.');
+      alert('Error al analizar el archivo. Comprueba la conexión.');
     } finally {
       setLoading(false);
     }
@@ -75,83 +99,53 @@ function App() {
 
   const renderContent = () => {
 
-    if (activeMenu === 'upload') {
+    // --- PANTALLA DE ARRANQUE EN FRÍO ---
+    if (engineStatus === 'waking') {
       return (
-        <FileUploader
-          onFileSelect={handleFileProcess}
-          isLoading={loading}
-        />
+        <div className="flex flex-col items-center justify-center h-full w-full bg-transparent">
+          <div className="relative flex items-center justify-center mb-6">
+            <AiOutlineSetting className="h-24 w-24 text-accent animate-spin" style={{ animationDuration: '4s' }} />
+            <AiOutlineSetting className="h-12 w-12 text-ink-muted animate-spin absolute" style={{ animationDuration: '2s', animationDirection: 'reverse' }} />
+          </div>
+          <div className="font-mono flex flex-col items-center text-center">
+            <p className="text-2xl font-black text-ink uppercase tracking-widest animate-pulse">Conectando Servidor</p>
+            <p className="text-sm text-ink-muted uppercase mt-3 max-w-md tracking-wider">
+              Iniciando clúster de cómputo en Render.
+              <br />Este proceso en frío puede tardar hasta 50 segundos.
+            </p>
+          </div>
+        </div>
       );
+    }
+
+    if (activeMenu === 'upload') {
+      return <FileUploader onFileSelect={handleFileProcess} isLoading={loading} />;
     }
 
     if (!miningData) return null;
 
-    // Different graph or matrix drawing
     switch (activeMenu) {
       case 'heuristic':
-        return (
-          <GraphViewer
-            dotString={miningData.heuristicGraphDot}
-            title="Heuristic Dependency Network"
-            description="Shows main flows filtering noise using frequencies."
-            onRecalculate={(newConfig) => handleFileProcess(newConfig)}
-            showSliders={true}
-          />
-        );
+        return <GraphViewer dotString={miningData.heuristicGraphDot} title="Red de Dependencias Heurísticas" description="Muestra los flujos principales filtrando el ruido mediante frecuencias." onRecalculate={(newConfig) => handleFileProcess(newConfig)} showSliders={true} />;
       case 'alpha':
-        return (
-          <GraphViewer
-            dotString={miningData.alphaGraphDot}
-            title="Alpha Miner Model"
-            description="Underlying Petri net representing all recorded possible relationships."
-            showSliders={false}
-          />
-        );
+        return <GraphViewer dotString={miningData.alphaGraphDot} title="Modelo Alpha Miner" description="Red de Petri subyacente que representa todas las relaciones posibles registradas." showSliders={false} />;
       case 'social':
-        return (
-          <GraphViewer
-            dotString={miningData.socialGraphDot}
-            title="Social Network (Handover of Work)"
-            description="Shows how work is transferred between different resources (staff/systems)."
-            showSliders={false}
-          />
-        );
+        return <GraphViewer dotString={miningData.socialGraphDot} title="Red Social (Handover of Work)" description="Muestra cómo se transfiere el trabajo entre los distintos recursos (empleados/sistemas)." showSliders={false} />;
       case 'variants':
-        return (
-          <VariantTable variants={miningData.topVariants} />
-        );
+        return <VariantTable variants={miningData.topVariants} />;
       case 'matrices':
-        return (
-          <MatrixHeatmap
-            activities={miningData.activities}
-            dependencyMatrix={miningData.dependencyMatrix}
-            concurrencyMatrix={miningData.concurrencyMatrix}
-          />
-        );
+        return <MatrixHeatmap activities={miningData.activities} dependencyMatrix={miningData.dependencyMatrix} concurrencyMatrix={miningData.concurrencyMatrix} />;
       case 'dashboard':
-        return (
-          <Dashboard dashboardData={miningData.dashboard} />
-        );
+        return <Dashboard dashboardData={miningData.dashboard} />;
       case 'start':
-        return (
-          <AdvancedDashboard
-            miningData={miningData}
-            onRecalculate={(newConfig) => handleFileProcess(newConfig)}
-          />
-        );
+        return <AdvancedDashboard miningData={miningData} onRecalculate={(newConfig) => handleFileProcess(newConfig)} />;
       default:
-        return (
-          <FileUploader onFileSelect={handleFileProcess} isLoading={loading} />
-        );
+        return <FileUploader onFileSelect={handleFileProcess} isLoading={loading} />;
     }
   };
 
   return (
-    <MainLayout
-      activeMenu={activeMenu}
-      setActiveMenu={setActiveMenu}
-      hasData={miningData !== null}
-    >
+    <MainLayout activeMenu={activeMenu} setActiveMenu={setActiveMenu} hasData={miningData !== null}>
       {renderContent()}
     </MainLayout>
   );

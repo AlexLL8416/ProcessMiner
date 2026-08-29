@@ -19,6 +19,13 @@ namespace ProcessMiner.Api.Controllers
     [ApiController]
     public class MinerController : ControllerBase
     {
+        // Endpoint for pings
+        [HttpGet("health")]
+        public IActionResult HealthCheck()
+        {
+            return Ok(new { status = "online", message = "Process Mining Engine Ready" });
+        }
+
         [HttpPost("upload")]
         [RequestSizeLimit(200_000_000)]
         public async Task<IActionResult> UploadLog(IFormFile file, [FromForm] double dependency = 0.5, [FromForm] double concurrency = 0.8, [FromForm] double support = 0.01)
