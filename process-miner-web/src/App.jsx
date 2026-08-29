@@ -20,7 +20,7 @@ function App() {
   const [engineStatus, setEngineStatus] = useState('waking');
 
   // URL BASE (Acuérdate de cambiar esto por la de Render cuando subas la API)
-  const API_BASE_URL = 'https://processminer.onrender.com/api/Miner';
+  const API_BASE_URL = import.meta.env.VITE_API_URL
 
   // --- SECUENCIA DE WARM-UP (Ping al servidor en Render) ---
   useEffect(() => {

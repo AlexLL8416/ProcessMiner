@@ -1,0 +1,6 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Allow: /
+
+# Descomenta y cambia el dominio cuando tengas la URL final de Vercel
+# Sitemap: https://processminer-tu-dominio.vercel.app/sitemap.xml

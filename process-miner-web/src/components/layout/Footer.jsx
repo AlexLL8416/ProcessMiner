@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { FiShield, FiX, FiCpu, FiHardDrive, FiEyeOff } from 'react-icons/fi';
+import { PiShareNetwork } from "react-icons/pi";
 
 const Footer = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -8,36 +9,47 @@ const Footer = () => {
     <>
       {/* BARRA FÍSICA DEL FOOTER */}
       <footer className="w-full flex justify-between items-center py-2 px-4 mt-2 shrink-0 border-t-2 border-ink-muted/20">
-        
-        {/* Etiqueta de Fabricación (Autoría) */}
+
+        {/* Etiqueta de Fabricación (Autoría - A la izquierda) */}
         <div className="font-mono text-[10px] font-bold text-ink-muted uppercase tracking-widest flex items-center space-x-2">
           <span className="inline-block w-2 h-2 rounded-full bg-ink-muted/50"></span>
           <span>© 2026 Alejandro Lara Lara // ProcessMiner</span>
         </div>
 
-        {/* Botón de Seguridad */}
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="flex items-center space-x-2 font-mono text-[10px] font-bold text-ink-muted hover:text-accent transition-colors uppercase tracking-widest cursor-pointer"
-        >
-          <FiShield size={14} />
-          <span>Seguridad y Procesamiento</span>
-        </button>
+        {/* Contenedor agrupado a la derecha */}
+        <div className="flex items-center space-x-6">
+          <a
+            href='https://alejandrolara.vercel.app/'
+            className="flex items-center space-x-2 font-mono text-[10px] font-bold text-ink-muted hover:text-accent transition-colors uppercase tracking-widest cursor-pointer"
+          >
+            <PiShareNetwork size={14} />
+            <span>Contacto</span>
+          </a>
+
+          {/* Botón de Seguridad */}
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="flex items-center space-x-2 font-mono text-[10px] font-bold text-ink-muted hover:text-accent transition-colors uppercase tracking-widest cursor-pointer"
+          >
+            <FiShield size={14} />
+            <span>Seguridad y Procesamiento</span>
+          </button>
+        </div>
       </footer>
 
       {/* PANEL MODAL DE PRIVACIDAD (Se abre al hacer clic) */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
-          
+
           {/* Fondo oscuro desenfocado */}
-          <div 
+          <div
             className="absolute inset-0 bg-ink/40 backdrop-blur-sm transition-opacity"
             onClick={() => setIsModalOpen(false)}
           ></div>
 
           {/* Caja del Modal (Estilo Panel Industrial) */}
           <div className="bg-chassis panel-lift screw-corners rounded-2xl w-full max-w-3xl relative z-10 flex flex-col max-h-full overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
-            
+
             {/* Cabecera del Modal */}
             <div className="flex justify-between items-center p-6 border-b-2 border-ink-muted/20 bg-chassis shrink-0">
               <div className="flex items-center space-x-3">
@@ -51,7 +63,7 @@ const Footer = () => {
                   </p>
                 </div>
               </div>
-              <button 
+              <button
                 onClick={() => setIsModalOpen(false)}
                 className="h-10 w-10 rounded-full btn-floating flex items-center justify-center text-ink hover:text-accent active:btn-pressed transition-all"
               >
@@ -61,7 +73,7 @@ const Footer = () => {
 
             {/* Contenido del Modal (Scrollable) */}
             <div className="p-8 overflow-y-auto font-sans text-ink space-y-8">
-              
+
               <div className="bg-[#e8ecf1] p-5 rounded-lg slot-recessed border-l-4 border-accent">
                 <p className="font-mono text-sm font-bold text-ink">
                   Esta herramienta ha sido diseñada bajo el principio de "Privacidad por Diseño". No almacenamos, compartimos, ni leemos sus Event Logs.
@@ -69,7 +81,7 @@ const Footer = () => {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                
+
                 {/* Pilar 1 */}
                 <div className="flex flex-col items-start space-y-3">
                   <div className="h-12 w-12 rounded-full bg-chassis panel-lift flex items-center justify-center text-blue-500">
