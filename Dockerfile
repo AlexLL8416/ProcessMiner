@@ -5,6 +5,8 @@ WORKDIR /app
 EXPOSE 8080 
 ENV ASPNETCORE_HTTP_PORTS=8080
 
+ENV DOTNET_HOSTBUILDER__RELOADCONFIGONCHANGE=false
+
 # 2. Heavy environment with the SDK to compile the code
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
